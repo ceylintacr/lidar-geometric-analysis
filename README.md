@@ -4,7 +4,7 @@ Bu projede, TOML formatında verilen 2 boyutlu LIDAR verileri okunarak geometrik
 
 ---
 
-Projenin Amacı
+## Projenin Amacı
 
 - TOML formatındaki LIDAR verilerini **harici kütüphane kullanmadan** okumak
 - Geçersiz LIDAR ölçümlerini filtrelemek
@@ -17,11 +17,11 @@ Projenin Amacı
 
 ---
 
-**Kullanılan Teknolojiler**
+## Kullanılan Teknolojiler
 
-- Programlama Dili: C / C++
-- Veri Formatı: TOML
-- Kullanılan Konular:
+- **Programlama Dili:** C / C++
+- **Veri Formatı:** TOML
+- **Kullanılan Konular:**
   - Dosya okuma ve ayrıştırma
   - Veri filtreleme
   - Geometrik hesaplamalar
@@ -32,15 +32,16 @@ Projenin Amacı
 
 ---
 
-**Girdi Verileri**
+## Girdi Verileri
 
-- LIDAR verileri TOML dosyaları üzerinden alınmaktadır
+- LIDAR verileri TOML dosyaları üzerinden alınmaktadır.
 - Dosyada yer alan temel bilgiler:
   - `angle_min`, `angle_max`, `angle_increment`
   - `range_min`, `range_max`
   - `ranges` (mesafe ölçümleri)
 
 Aşağıdaki değerler filtrelenmektedir:
+
 - NaN veya geçersiz ölçümler
 - `range_min` değerinden küçük ölçümler
 - `range_max` değerinden büyük ölçümler
@@ -49,36 +50,36 @@ Robotun konumu **(0, 0)** olarak kabul edilmiştir.
 
 ---
 
-**İşlem Adımları**
+## İşlem Adımları
 
-1. TOML Dosyasının Okunması  
+1. **TOML Dosyasının Okunması**  
    LIDAR tarama parametreleri ve mesafe ölçümleri dosyadan okunur.
 
-2. Filtreleme  
+2. **Filtreleme**  
    Geçersiz ve sınır dışı ölçümler veri setinden çıkarılır.
 
-3. Koordinat Dönüşümü  
+3. **Koordinat Dönüşümü**  
    Kutupsal koordinatlar Kartezyen koordinatlara dönüştürülür.
 
-4. Doğru Tespiti  
+4. **Doğru Tespiti**  
    Nokta bulutu içerisinden doğrular belirlenir.  
    En az 8 nokta bir doğru olarak kabul edilir.
 
-5. Kesişim Analizi  
+5. **Kesişim Analizi**  
    Tespit edilen doğruların kesişip kesişmediği kontrol edilir ve kesişim noktaları hesaplanır.
 
-6. Açıya Göre Doğru Seçimi
+6. **Açıya Göre Doğru Seçimi**  
    Doğrular arasındaki açı hesaplanır ve belirlenen eşik açının üzerindeki doğru çiftleri seçilir.
 
-7. Mesafe Hesabı  
+7. **Mesafe Hesabı**  
    Seçilen doğru çiftlerinin kesişim noktası ile robot konumu arasındaki mesafe hesaplanır.
 
-8. Grafiksel Gösterim  
+8. **Grafiksel Gösterim**  
    Noktalar, doğrular, kesişim noktaları ve robotun konumu grafik üzerinde gösterilir.
 
 ---
 
-**Çıktılar**
+## Çıktılar
 
 - LIDAR nokta bulutu
 - Tespit edilen doğrular
@@ -89,7 +90,16 @@ Robotun konumu **(0, 0)** olarak kabul edilmiştir.
 
 ---
 
-**Çalıştırma**
+## Grafiksel Çıktı
+
+*(Program çıktısına ait görseller daha sonra eklenecektir.)*
+
+---
+
+## Derleme ve Çalıştırma
+
+### g++ ile:
 
 ```bash
+g++ main.cpp -o program
 ./program lidar1.toml

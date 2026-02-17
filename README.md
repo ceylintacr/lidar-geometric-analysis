@@ -1,104 +1,83 @@
 # LIDAR Doğru Tespiti ve Kesişim Analizi
 
-Bu projede, TOML formatında verilen 2 boyutlu LIDAR verileri okunarak geometrik analizler gerçekleştirilmiştir. LIDAR ölçümlerinden elde edilen nokta bulutu üzerinden doğrular tespit edilmiş, bu doğruların kesişim noktaları hesaplanmış ve belirli açısal koşullara göre analizler yapılmıştır. Ayrıca, kesişim noktaları ile robotun konumu arasındaki mesafe hesaplanarak sonuçlar grafiksel olarak gösterilmiştir.
+Bu projede, TOML formatında verilen 2 boyutlu LIDAR verileri işlenerek nokta bulutu üzerinden doğru tespiti, kesişim analizi ve robot konumuna göre mesafe hesaplaması gerçekleştirilmiştir.
+
+Filtrelenen ölçümler kutupsal koordinatlardan Kartezyen koordinatlara dönüştürülmüş, doğrusal nokta kümeleri belirlenmiş ve belirli bir açı eşiğini sağlayan doğru çiftlerinin kesişim noktaları hesaplanmıştır.
 
 ---
 
 ## Projenin Amacı
 
-- TOML formatındaki LIDAR verilerini **harici kütüphane kullanmadan** okumak
-- Geçersiz LIDAR ölçümlerini filtrelemek
-- Kutupsal koordinatları Kartezyen (x, y) koordinatlara dönüştürmek
-- Nokta bulutu üzerinden doğruları tespit etmek
-- Tespit edilen doğruların kesişim noktalarını hesaplamak
-- Belirli bir açıdan büyük doğru çiftlerini seçmek
-- Kesişim noktası ile robot konumu arasındaki mesafeyi hesaplamak
-- Tüm sonuçları grafiksel olarak görselleştirmek
+- TOML verilerini harici kütüphane kullanmadan okumak  
+- Geçersiz ölçümleri filtrelemek  
+- Polar → Kartezyen dönüşüm yapmak  
+- Nokta bulutundan doğrusal yapıları tespit etmek  
+- Doğruların kesişim noktalarını hesaplamak  
+- Robot ile kesişim noktası arasındaki mesafeyi bulmak  
+- Sonuçları grafiksel olarak göstermek  
+
+---
+
+## Algoritma Akışı
+
+1. TOML dosyasından `angle_min`, `angle_increment` ve `ranges` değerleri okunur.  
+2. `range_min` ve `range_max` dışındaki ölçümler filtrelenir.  
+3. Polar koordinatlar (r, θ) → (x, y) dönüşümü yapılır.  
+4. En az 8 noktadan oluşan doğrusal kümeler belirlenir.  
+5. Doğru denklemleri hesaplanır.  
+6. Doğrular arasındaki açı hesaplanır.  
+7. Açı eşiğini sağlayan doğru çiftleri için kesişim noktası bulunur.  
+8. Robot (0,0) ile kesişim noktası arasındaki mesafe hesaplanır.  
+
+---
+
+## Grafiksel Çıktılar
+
+### Örnek 1 – Hatalı Kesişim Sonucu
+
+![Ornek1](images/ornek1.png)
+
+Bu veri setinde bazı doğruların yanlış gruplanması nedeniyle kesişim noktası geometrik olarak beklenen konumdan sapmıştır.  
+Bu durum algoritmanın gürültüye ve doğru segmentleme hassasiyetine bağlı sınırlamalarını göstermektedir.
+
+---
+
+### Örnek 2 – Doğru Kesişim Analizi
+
+![Ornek2](images/ornek2.png)
+
+Bu veri setinde doğrular doğru şekilde gruplanmış ve kesişim noktası tutarlı olarak hesaplanmıştır.  
+Açı değeri ve robot ile kesişim noktası arasındaki mesafe doğru biçimde raporlanmıştır.
+
+---
+
+### Konsol Çıktısı
+
+![Konsol](images/konsol.png)
+
+Program, konsol üzerinde:
+- Doğrular arası açı (derece)
+- Kesişim noktası koordinatları
+- Robot ile kesişim noktası arasındaki mesafe
+
+değerlerini sayısal olarak göstermektedir.
 
 ---
 
 ## Kullanılan Teknolojiler
 
-- **Programlama Dili:** C / C++
-- **Veri Formatı:** TOML
-- **Kullanılan Konular:**
-  - Dosya okuma ve ayrıştırma
-  - Veri filtreleme
-  - Geometrik hesaplamalar
-  - Kutupsal → Kartezyen dönüşüm
-  - Doğru tespiti (RANSAC / PCA tabanlı yaklaşımlar)
-  - Doğru kesişim ve açı hesaplamaları
-  - Grafiksel gösterim
-
----
-
-## Girdi Verileri
-
-- LIDAR verileri TOML dosyaları üzerinden alınmaktadır.
-- Dosyada yer alan temel bilgiler:
-  - `angle_min`, `angle_max`, `angle_increment`
-  - `range_min`, `range_max`
-  - `ranges` (mesafe ölçümleri)
-
-Aşağıdaki değerler filtrelenmektedir:
-
-- NaN veya geçersiz ölçümler
-- `range_min` değerinden küçük ölçümler
-- `range_max` değerinden büyük ölçümler
-
-Robotun konumu **(0, 0)** olarak kabul edilmiştir.
-
----
-
-## İşlem Adımları
-
-1. **TOML Dosyasının Okunması**  
-   LIDAR tarama parametreleri ve mesafe ölçümleri dosyadan okunur.
-
-2. **Filtreleme**  
-   Geçersiz ve sınır dışı ölçümler veri setinden çıkarılır.
-
-3. **Koordinat Dönüşümü**  
-   Kutupsal koordinatlar Kartezyen koordinatlara dönüştürülür.
-
-4. **Doğru Tespiti**  
-   Nokta bulutu içerisinden doğrular belirlenir.  
-   En az 8 nokta bir doğru olarak kabul edilir.
-
-5. **Kesişim Analizi**  
-   Tespit edilen doğruların kesişip kesişmediği kontrol edilir ve kesişim noktaları hesaplanır.
-
-6. **Açıya Göre Doğru Seçimi**  
-   Doğrular arasındaki açı hesaplanır ve belirlenen eşik açının üzerindeki doğru çiftleri seçilir.
-
-7. **Mesafe Hesabı**  
-   Seçilen doğru çiftlerinin kesişim noktası ile robot konumu arasındaki mesafe hesaplanır.
-
-8. **Grafiksel Gösterim**  
-   Noktalar, doğrular, kesişim noktaları ve robotun konumu grafik üzerinde gösterilir.
-
----
-
-## Çıktılar
-
-- LIDAR nokta bulutu
-- Tespit edilen doğrular
-- Doğru kesişim noktaları
-- Kesişen doğrular arasındaki açılar
-- Robot ile kesişim noktası arasındaki mesafe
-- Grafiksel çıktı
-
----
-
-## Grafiksel Çıktı
-
-*(Program çıktısına ait görseller daha sonra eklenecektir.)*
+- C / C++
+- TOML veri formatı
+- Geometrik hesaplamalar
+- Polar → Kartezyen dönüşüm
+- Doğru kesişim ve açı hesaplama
+- Grafiksel veri gösterimi
 
 ---
 
 ## Derleme ve Çalıştırma
 
-### g++ ile:
+### g++ ile
 
 ```bash
 g++ main.cpp -o program
